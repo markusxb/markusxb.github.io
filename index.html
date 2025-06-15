@@ -1,6 +1,6 @@
-
 <!DOCTYPE html>
 <html lang="de">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,38 +13,45 @@
             background: #ffffff;
             color: #333;
         }
+
         header {
             background: #0066cc;
             color: white;
             padding: 2rem;
             text-align: center;
         }
+
         nav a {
             margin: 0 1rem;
             color: white;
             text-decoration: none;
         }
+
         section {
             padding: 2rem;
             max-width: 800px;
             margin: auto;
         }
+
         h2 {
             color: #0066cc;
         }
+
         .project {
             background: #f9f9f9;
             padding: 1rem;
             margin: 1rem 0;
             border-radius: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
         }
+
         footer {
             text-align: center;
             padding: 1rem;
             background: #f1f1f1;
             color: #555;
         }
+
         .button {
             display: inline-block;
             margin-top: 1rem;
@@ -54,60 +61,169 @@
             text-decoration: none;
             border-radius: 8px;
         }
+
+        #squares-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            display: block;
+            background: white;
+        }
     </style>
 </head>
+
 <body>
 
-<header>
-    <h1>Markus Brandstetter</h1>
-    <p>Informationstechnologie | Cybersecurity | KI-Projekte</p>
-    <nav>
-        <a href="#about">Über mich</a>
-        <a href="#resume">Lebenslauf</a>
-        <a href="#projects">Projekte</a>
-        <a href="#contact">Kontakt</a>
-    </nav>
-</header>
+    <canvas id="squares-background"></canvas>
 
-<section id="about">
-    <h2>Über mich</h2>
-    <p>Ich bin Markus Brandstetter, 19 Jahre alt, HTL-Absolvent mit Spezialisierung auf IT-Security und Softwareentwicklung.
-    Derzeit beim Bundesheer  tätig, mit praktischer Berufserfahrung durch Praktika im Bundesministerium für Inneres 
-    und Projekten während meiner Ausbildung an der HTL Hollabrunn.</p>
-</section>
+    <script>
+        const canvas = document.getElementById('squares-background');
+        const ctx = canvas.getContext('2d');
 
-<section id="resume">
-    <h2>Lebenslauf</h2>
-    <ul>
-        <li>🎓 Ausbildung: HTL Hollabrunn - Informationstechnologie (Matura 2025)</li>
-        <li>💼 Praktische Erfahrung: 3x Sommerpraktikum im BMI (Cybersecurity)</li>
-        <li>📧 E-Mail: <a href="mailto:markusbrandstetter2006@gmail.com">markusbrandstetter2006@gmail.com</a></li>
-        <li>📞 Telefon: +43 676 6281958</li>
-    </ul>
-    <a href="assets/Lebenslauf_Markus_Brandstetter.pdf" class="button" download>Lebenslauf herunterladen</a>
-</section>
+        const squareSize = 40;
+        const speed = 0.1;
+        const borderColor = '#dcdcdc22';
+        const hoverFillColor = '#ffffff08';
+        const direction = 'diagonal';
 
-<section id="projects">
-    <h2>Projekte</h2>
-    <div class="project">
-        <h3>TrafficSignDetection - KI-basierte Verkehrsschilderkennung</h3>
-        <p>Ein Machine-Learning-Projekt zur Echtzeit-Erkennung von Verkehrsschildern mittels TensorFlow, Keras und OpenCV.</p>
-    </div>
-    <div class="project">
-        <h3>Portfolio</h3>
-        <p>Sammlung kleiner Tools, Web-Demos und Python-Skripte auf <a href="https://github.com/markusxb" target="_blank">GitHub</a>.</p>
-    </div>
-</section>
+        let gridOffset = { x: 0, y: 0 };
+        let hoveredSquare = null;
 
-<section id="contact">
-    <h2>Kontakt</h2>
-    <p>Bei Interesse oder Fragen erreichen Sie mich per <a href="mailto:markusbrandstetter2006@gmail.com">E-Mail</a>.</p>
-    <p><a href="https://github.com/markusxb" target="_blank">Mein GitHub-Profil</a></p>
-</section>
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
 
-<footer>
-    <p>&copy; 2025 Markus Brandstetter - Alle Rechte vorbehalten.</p>
-</footer>
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        function drawGrid() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const startX = Math.floor(gridOffset.x / squareSize) * squareSize;
+            const startY = Math.floor(gridOffset.y / squareSize) * squareSize;
+
+            for (let x = startX; x < canvas.width + squareSize; x += squareSize) {
+                for (let y = startY; y < canvas.height + squareSize; y += squareSize) {
+                    const squareX = x - (gridOffset.x % squareSize);
+                    const squareY = y - (gridOffset.y % squareSize);
+
+                    const hx = Math.floor((squareX + gridOffset.x - startX) / squareSize);
+                    const hy = Math.floor((squareY + gridOffset.y - startY) / squareSize);
+
+                    if (hoveredSquare && hx === hoveredSquare.x && hy === hoveredSquare.y) {
+                        ctx.fillStyle = hoverFillColor;
+                        ctx.fillRect(squareX, squareY, squareSize, squareSize);
+                    }
+
+                    ctx.strokeStyle = borderColor;
+                    ctx.strokeRect(squareX, squareY, squareSize, squareSize);
+                }
+            }
+        }
+
+        function animate() {
+            switch (direction) {
+                case 'right':
+                    gridOffset.x = (gridOffset.x - speed + squareSize) % squareSize;
+                    break;
+                case 'left':
+                    gridOffset.x = (gridOffset.x + speed + squareSize) % squareSize;
+                    break;
+                case 'up':
+                    gridOffset.y = (gridOffset.y + speed + squareSize) % squareSize;
+                    break;
+                case 'down':
+                    gridOffset.y = (gridOffset.y - speed + squareSize) % squareSize;
+                    break;
+                case 'diagonal':
+                    gridOffset.x = (gridOffset.x - speed + squareSize) % squareSize;
+                    gridOffset.y = (gridOffset.y - speed + squareSize) % squareSize;
+                    break;
+            }
+
+            drawGrid();
+            requestAnimationFrame(animate);
+        }
+
+        canvas.addEventListener('mousemove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+
+            const hoveredX = Math.floor((mouseX + gridOffset.x) / squareSize);
+            const hoveredY = Math.floor((mouseY + gridOffset.y) / squareSize);
+
+            hoveredSquare = { x: hoveredX, y: hoveredY };
+        });
+
+        canvas.addEventListener('mouseleave', () => {
+            hoveredSquare = null;
+        });
+
+        animate();
+    </script>
+
+
+    <header>
+        <h1>Markus Brandstetter</h1>
+        <p>Informationstechnologie | Cybersecurity | KI-Projekte</p>
+        <nav>
+            <a href="#about">Über mich</a>
+            <a href="#resume">Lebenslauf</a>
+            <a href="#projects">Projekte</a>
+            <a href="#contact">Kontakt</a>
+        </nav>
+    </header>
+
+    <section id="about">
+        <h2>Über mich</h2>
+        <p>Ich bin Markus Brandstetter, 19 Jahre alt, HTL-Absolvent mit Spezialisierung auf IT-Security und
+            Softwareentwicklung.
+            Derzeit beim Bundesheer tätig, mit praktischer Berufserfahrung durch Praktika im Bundesministerium für
+            Inneres
+            und Projekten während meiner Ausbildung an der HTL Hollabrunn.</p>
+    </section>
+
+    <section id="resume">
+        <h2>Lebenslauf</h2>
+        <ul>
+            <li>🎓 Ausbildung: HTL Hollabrunn - Informationstechnologie (Matura 2025)</li>
+            <li>💼 Praktische Erfahrung: 3x Sommerpraktikum im BMI (Cybersecurity)</li>
+            <li>📧 E-Mail: <a href="mailto:markusbrandstetter2006@gmail.com">markusbrandstetter2006@gmail.com</a></li>
+            <li>📞 Telefon: +43 676 6281958</li>
+        </ul>
+        <a href="assets/Lebenslauf_Markus_Brandstetter.pdf" class="button" download>Lebenslauf herunterladen</a>
+    </section>
+
+    <section id="projects">
+        <h2>Projekte</h2>
+        <div class="project">
+            <h3>TrafficSignDetection - KI-basierte Verkehrsschilderkennung</h3>
+            <p>Ein Machine-Learning-Projekt zur Echtzeit-Erkennung von Verkehrsschildern mittels TensorFlow, Keras und
+                OpenCV.</p>
+        </div>
+        <div class="project">
+            <h3>Portfolio</h3>
+            <p>Sammlung kleiner Tools, Web-Demos und Python-Skripte auf <a href="https://github.com/markusxb"
+                    target="_blank">GitHub</a>.</p>
+        </div>
+    </section>
+
+    <section id="contact">
+        <h2>Kontakt</h2>
+        <p>Bei Interesse oder Fragen erreichen Sie mich per <a
+                href="mailto:markusbrandstetter2006@gmail.com">E-Mail</a>.</p>
+        <p><a href="https://github.com/markusxb" target="_blank">Mein GitHub-Profil</a></p>
+    </section>
+
+    <footer>
+        <p>&copy; 2025 Markus Brandstetter - Alle Rechte vorbehalten.</p>
+    </footer>
 
 </body>
+
 </html>
