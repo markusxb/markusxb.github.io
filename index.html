@@ -181,7 +181,11 @@
 
     <section id="about">
         <h2>Über mich</h2>
-        <p>Ich bin Markus Brandstetter, 20 Jahre alt, HTL-Absolvent mit Spezialisierung auf IT-Security und
+        <p>Ich bin Markus Brandstetter, 
+            <script>
+                const b = new Date(2006, 1, 22), h = new Date(), a = h.getFullYear() - b.getFullYear(); (h.getMonth() < b.getMonth() || h.getMonth() === b.getMonth() && h.getDate() < b.getDate()) && (a--); document.write(a);
+            </script>
+            Jahre alt, HTL-Absolvent mit Spezialisierung auf IT-Security und
             Softwareentwicklung.
             Derzeit als Softwareentwickler in einem Logistikunternehmen tätig, mit praktischer Berufserfahrung durch Praktika im Bundesministerium für
             Inneres
